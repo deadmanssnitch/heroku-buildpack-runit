@@ -40,6 +40,12 @@ function compile() {
     #   sv/web/puma/run
     patch -i "$BUILDPACK_DIR/src/supervise.patch" -u runsvdir.c
 
+    # Patch the Makefile to remove a check for getgroups and setgroups
+    # permissions. On Heroku the build is not being run as root so the checks
+    # fail but the buildpack doesn't include any commands that support changing
+    # the group.
+    patch -i "$BUILDPACK_DIR/src/chkshsgr.patch" -u Makefile
+
     # Compile just the commands we need
     make -j "$(nproc --all)" sv runsv runsvdir
 
